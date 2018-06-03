@@ -1,5 +1,6 @@
 class Party < ApplicationRecord
   before_save :generate_code
+
   validates_presence_of :name
 
   def generate_code
