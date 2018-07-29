@@ -7,6 +7,18 @@
 
     <%= stylesheet_link_tag    'application', media: 'all' %>
     <%= javascript_include_tag 'application' %>
+    <script src="https://www.gstatic.com/firebasejs/5.3.0/firebase.js"></script>
+    <script>
+    // Initialize Firebase
+    // TODO: Replace with your project's customized code snippet
+    var config = {
+      apiKey: "AIzaSyCWiQ6FP6PIUlzqXVW3Ta7TQDqyUpAKmyA",
+      authDomain: "party-music-box.firebaseapp.com",
+      projectId: "party-music-box",
+      messagingSenderId: "431707171411",
+    };
+    firebase.initializeApp(config);
+  </script>
   </head>
 
   <body>

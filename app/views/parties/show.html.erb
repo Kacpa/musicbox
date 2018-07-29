@@ -4,4 +4,101 @@
   <strong>Access code:</strong>
   <%= @party.access_code %>
 </p>
+<div>
+  <button onClick="stopVideo()">Stop</button>
+  <button onClick="nextVideo()">Next ></button>
+
+</div>
+
+<div id="player"></div>
+
+
+
+
 <%= render 'tracks/tracks_list', tracks: @party.tracks %>
+
+<script>
+     //Load external Youtube library (from https://developers.google.com/youtube/iframe_api_reference )
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      var trackAddress = '<%= @party.tracks.first.address %>';
+      const messaging = firebase.messaging();
+      messaging.usePublicVapidKey("BMJpTZNhWKHUGPmDTPExQzbyNZIzX1dCIC_6_2FlDYID06yG_WUZU2leLDUAnkUkExHzxtp7I4aPaxZHPLv_bxc");
+      messaging.requestPermission().then(function() {
+        console.log('Notification permission granted.');
+        messaging.getToken().then(function(currentToken) {
+          if (currentToken) {
+            sendTokenToServer(currentToken);
+            updateUIForPushEnabled(currentToken);
+          } else {
+            // Show permission request.
+            console.log('No Instance ID token available. Request permission to generate one.');
+            // Show permission UI.
+            updateUIForPushPermissionRequired();
+            setTokenSentToServer(false);
+          }
+        }).catch(function(err) {
+          console.log('An error occurred while retrieving token. ', err);
+          showToken('Error retrieving Instance ID token. ', err);
+          setTokenSentToServer(false);
+        });
+
+      }).catch(function(err) {
+        console.log('Unable to get permission to notify.', err);
+      });
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          height: '390',
+          width: '640',
+          videoId: extractVideoIdFromAddress(trackAddress),
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        event.target.playVideo();
+        $('.track-row').first().addClass('playing');
+
+      }
+
+      function onPlayerStateChange(event) {
+        console.log('event changed, data: ', event.data)
+        if (event.data == YT.PlayerState.ENDED) {
+          nextVideo();
+        }
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
+
+      function playTrack(trackAddress) {
+        var trackId = extractVideoIdFromAddress(trackAddress);
+        player.loadVideoById(trackId);
+      }
+      function extractVideoIdFromAddress(trackAddress) {
+        var url = new URL(trackAddress);
+        var trackId = url.searchParams.get('v');
+        return trackId;
+      }
+
+      function nextVideo() {
+        var playingRow = $('.track-row.playing')
+        playingRow.removeClass('playing');
+        var nextRow = playingRow.next();
+        nextRow.addClass('playing');
+        var nextTrackAddress = nextRow.find('.track-address').text();
+        playTrack(nextTrackAddress);
+      }
+
+
+    </script>
