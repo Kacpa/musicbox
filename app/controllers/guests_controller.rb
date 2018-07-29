@@ -10,6 +10,7 @@ class GuestsController < ApplicationController
   # GET /guests/1
   # GET /guests/1.json
   def show
+    @track = Track.new
   end
 
   # GET /guests/new

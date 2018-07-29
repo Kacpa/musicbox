@@ -1,4 +1,6 @@
 class Party < ApplicationRecord
+  has_many :tracks
+  has_many :guests
   before_save :generate_code
 
   validates_presence_of :name

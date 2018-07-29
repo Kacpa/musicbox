@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  party: one
+  guest: 
+  name: MyString
+  address: MyString
+
+two:
+  party: two
+  guest: 
+  name: MyString
+  address: MyString

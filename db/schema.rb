@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_03_171846) do
+ActiveRecord::Schema.define(version: 2018_07_29_155241) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,5 +30,18 @@ ActiveRecord::Schema.define(version: 2018_06_03_171846) do
     t.string "access_code"
   end
 
+  create_table "tracks", force: :cascade do |t|
+    t.bigint "party_id"
+    t.bigint "guest_id"
+    t.string "name"
+    t.string "address"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["guest_id"], name: "index_tracks_on_guest_id"
+    t.index ["party_id"], name: "index_tracks_on_party_id"
+  end
+
   add_foreign_key "guests", "parties"
+  add_foreign_key "tracks", "guests"
+  add_foreign_key "tracks", "parties"
 end
