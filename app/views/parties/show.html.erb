@@ -12,9 +12,6 @@
 
 <div id="player"></div>
 
-
-
-
 <%= render 'tracks/tracks_list', tracks: @party.tracks %>
 
 <script>
@@ -27,7 +24,7 @@
       // 3. This function creates an <iframe> (and YouTube player)
       //    after the API code downloads.
       var player;
-      var trackAddress = '<%= @party.tracks.first.address %>';
+      var trackAddress = '<%= @party.tracks.first.address if @party.tracks.any? %>';
       const messaging = firebase.messaging();
       messaging.usePublicVapidKey("BMJpTZNhWKHUGPmDTPExQzbyNZIzX1dCIC_6_2FlDYID06yG_WUZU2leLDUAnkUkExHzxtp7I4aPaxZHPLv_bxc");
       messaging.requestPermission().then(function() {
