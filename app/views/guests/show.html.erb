@@ -13,3 +13,5 @@
 <h2>List of party tracks</h2>
 
 <%= render 'tracks/tracks_list', tracks: @guest.party.tracks %>
+
+<%= link_to('Bye', guests_url, class: 'btn btn-primary') %>
