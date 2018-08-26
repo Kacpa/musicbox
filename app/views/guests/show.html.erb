@@ -7,7 +7,6 @@
   <strong><%= @guest.party.name %></strong>
 </p>
 
-<h2>Add New Track</h2>
 <%= render 'tracks/form', track: @track %>
 
 <h2>List of party tracks</h2>
@@ -15,3 +14,60 @@
 <%= render 'tracks/tracks_list', tracks: @guest.party.tracks %>
 
 <%= link_to('Bye', guests_url, class: 'btn btn-primary') %>
+
+<h2>Search tune</h2>
+<form id="searchForm">
+  <input id="search_query" />
+  <button>Search</button>
+</form>
+
+<ul id="results">
+
+</ul>
+<script>
+$().ready(function() {
+  $('#searchForm').submit(searchYT);
+})
+function start() {
+  gapi.client.init({
+    'apiKey': '<%= ENV['YOUTUBE_KEY'] %>'
+  }).then(function(response) {
+    gapi.client.load('youtube', 'v3', function() { console.log('loaded') });
+  }, function(reason) {
+    console.log('Error: ' + reason.result.error.message);
+  });
+};
+
+gapi.load('client', start);
+
+
+function searchYT(event) {
+  event.preventDefault();
+  $('#results').html('')
+  var query = $('#search_query').val();
+  var request = gapi.client.youtube.search.list({
+    q: query ,
+    part: 'snippet',
+    type: 'video',
+    maxResults: '10'
+  });
+  request.execute(function(response) {
+    response.items.forEach(function(item){
+      $('#results').append(`
+        <li title="${item.snippet.description}">
+          <img src="${item.snippet.thumbnails.default.url}"/>
+          ${item.snippet.title}
+          <a onclick="addTrack('${item.snippet.title}', '${item.id.videoId}')"><strong>+</strong></a>
+        </li>
+      `);
+    })
+  })
+}
+
+function addTrack(name, id) {
+  var address='https://www.youtube.com/watch?v=' + id;
+  $('#track_name').val(name);
+  $('#track_address').val(address);
+  $('#track_form').submit()
+}
+</script>
