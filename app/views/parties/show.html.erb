@@ -25,30 +25,32 @@
       //    after the API code downloads.
       var player;
       var trackAddress = '<%= @party.tracks.first.address if @party.tracks.any? %>';
-      const messaging = firebase.messaging();
-      messaging.usePublicVapidKey("BMJpTZNhWKHUGPmDTPExQzbyNZIzX1dCIC_6_2FlDYID06yG_WUZU2leLDUAnkUkExHzxtp7I4aPaxZHPLv_bxc");
-      messaging.requestPermission().then(function() {
-        console.log('Notification permission granted.');
-        messaging.getToken().then(function(currentToken) {
-          if (currentToken) {
-            sendTokenToServer(currentToken);
-            updateUIForPushEnabled(currentToken);
-          } else {
-            // Show permission request.
-            console.log('No Instance ID token available. Request permission to generate one.');
-            // Show permission UI.
-            updateUIForPushPermissionRequired();
-            setTokenSentToServer(false);
-          }
-        }).catch(function(err) {
-          console.log('An error occurred while retrieving token. ', err);
-          showToken('Error retrieving Instance ID token. ', err);
-          setTokenSentToServer(false);
-        });
 
-      }).catch(function(err) {
-        console.log('Unable to get permission to notify.', err);
+      Pusher.logToConsole = true;
+
+      var pusher = new Pusher('<%= ENV["PUSHER_KEY"]%>', {
+        cluster: 'eu',
+        encrypted: true
       });
+
+      var channel = pusher.subscribe('party-<%= @party.id %>');
+      channel.bind( 'new-track', function(data) {
+        console.log('party channel new track', data);
+        addNewTrackRow(data);
+      });
+
+      function addNewTrackRow(track) {
+        $('.tracks-table tbody').last().append(`
+           <tr class="track-row">
+            <td><span class="playing-status">></span></td>
+            <td>${track.name}</td>
+            <td class="track-address">${track.address}</td>
+            <td>-</td>
+            <td><button onClick="playTrack('${track.address}')">Play ></button></td>
+          </tr>
+          `);
+      }
+
       function onYouTubeIframeAPIReady() {
         player = new YT.Player('player', {
           height: '390',
